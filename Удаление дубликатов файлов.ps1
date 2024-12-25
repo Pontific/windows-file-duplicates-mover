@@ -86,7 +86,7 @@ foreach ($sizeGroup in $sizeGroups) {
         $checksumGroup = $checksumGroups[$checksumGroupKey]
         if ($checksumGroup.Count -gt 1) {
                 
-            # Сортируем файлы в группе по длине названия в порядке возрастания
+            # Сортируем файлы в группе по длине названия в порядке возрастания, а затем по алфавиту
             $sortedFiles = $checksumGroup | Sort-Object -Property @{Expression = { $_.Name.Length }}, @{Expression = { $_.Name }}
 
             # Оставляем файл с самым коротким именем
@@ -94,16 +94,14 @@ foreach ($sizeGroup in $sizeGroups) {
             Write-Host "        → Оставлен файл    '$($keptFile.Name)'"
             
             
-            # Удаляем  остальные файлы
+            # Удаляем дубликаты
             $duplicates = $sortedFiles | Select-Object -Skip 1
             foreach ($duplicate in $duplicates) {
                 
                 $totalDeletedSize += $duplicate.Length
                 $totalDeletedCount++
 
-                
-                # Remove-Item -Path $duplicate.FullName
-               # Move-ToRecycleBin -Path $duplicate.FullName
+                Move-ToRecycleBin -Path $duplicate.FullName
                 Write-Host "         × Удалён дубликат '$($duplicate.Name)'"
             }
         } else {
